@@ -4,7 +4,7 @@
 
 Class name completion, go to definition, hover previews and diagnostics for CSS Modules, plus `var(--*)` completion and color swatches. Works in VS Code and Cursor, with TypeScript 5, 6 and 7.
 
-It runs as its own language server and never loads TypeScript, so it behaves the same whichever TS version your workspace uses. It also means nothing runs inside `tsserver`, so it can't slow down your TS completions.
+Inspired by features from [existing extensions](#special-thanks), brought up to date, tested and aggregated under one roof.
 
 ## Features
 
@@ -139,6 +139,8 @@ Running this extension next to either of those two shows duplicate suggestions, 
 - **[Biome](https://biomejs.dev/)'s `noUndeclaredCustomProperties`** reports `var(--x)` with no declaration. This extension deliberately doesn't, so the two never disagree. Biome follows the import graph and has no option for global files, so a variable that only reaches a module through your layout's `globals.css` may be flagged. Turn the rule off for those files with `overrides` if that happens.
 - **[css-modules-kit](https://github.com/mizdra/css-modules-kit)** on TypeScript 5 or 6 gives TypeScript real types for your modules, which means rename, find references and `tsc` errors for missing classes. When its plugin is active, this extension leaves the TS/JS side to it and keeps hover, variables, colors and the CSS-side checks. On TypeScript 7 css-modules-kit's plugin can't load, and this extension handles both sides.
 
+Note: This extension runs as its own language server and never loads TypeScript, so it behaves the same whichever TS version your workspace uses. It also means nothing runs inside `tsserver`, so it can't slow down your TS completions.
+
 ## Known limitations
 
 - **Duplicate entry in go to definition.** Next.js and Vite ship a `declare module '*.module.css'`, and TypeScript returns it next to the real CSS rule. Extensions can't hide each other's results, so F12 shows a short list.
@@ -169,7 +171,7 @@ Running this extension next to either of those two shows duplicate suggestions, 
 
 Empty cells are ones I couldn't confirm from the project's docs or issues.
 
-## Thanks
+## Special thanks
 
 Most of these features already existed, spread across a handful of popular extensions. This one brings them together under a single roof, and it owes a lot to the people who built them first.
 
