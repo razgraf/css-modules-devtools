@@ -1,0 +1,4 @@
+.alert {
+	padding: var(--space-4);
+	border-radius: var(--radius);
+}

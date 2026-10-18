@@ -1,0 +1,13 @@
+.reset {
+	margin: 0;
+	border: 0;
+}
+
+.focus {
+	outline: 2px solid var(--ring);
+	outline-offset: 2px;
+}
+
+.elevated {
+	box-shadow: 0 8px 24px rgb(0 0 0 / 35%);
+}

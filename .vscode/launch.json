@@ -1,0 +1,31 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Run Extension",
+			"type": "extensionHost",
+			"request": "launch",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}/packages/client",
+				"${workspaceFolder}/fixtures/next-app"
+			],
+			"outFiles": ["${workspaceFolder}/packages/client/dist/**/*.js"],
+			"preLaunchTask": "build"
+		},
+		{
+			"name": "Attach to Server",
+			"type": "node",
+			"request": "attach",
+			"port": 6009,
+			"restart": true,
+			"outFiles": ["${workspaceFolder}/packages/client/dist/**/*.js"]
+		}
+	],
+	"compounds": [
+		{
+			"name": "Extension + Server",
+			"configurations": ["Run Extension", "Attach to Server"],
+			"stopAll": true
+		}
+	]
+}

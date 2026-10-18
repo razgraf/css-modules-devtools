@@ -1,0 +1,5 @@
+{
+	"name": "@repo/ui",
+	"private": true,
+	"exports": { "./shared.module.css": "./src/shared.module.css" }
+}

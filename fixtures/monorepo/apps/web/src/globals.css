@@ -1,0 +1,7 @@
+:root {
+	--web-only: 1px;
+}
+
+.shared-global {
+	color: red;
+}

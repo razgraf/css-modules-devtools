@@ -1,0 +1,20 @@
+.button {
+	composes: reset from "@/styles/base.module.css";
+	padding: var(--space-2) var(--space-4);
+	border-radius: var(--radius);
+	color: var(--fg);
+}
+
+.primary {
+	composes: button;
+	background: var(--brand);
+
+	&:hover {
+		background: var(--brand-strong);
+	}
+}
+
+.ghost {
+	composes: button;
+	background: transparent;
+}

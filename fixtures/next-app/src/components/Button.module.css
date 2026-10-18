@@ -1,0 +1,41 @@
+.button {
+	composes: focusable from "@/styles/base.module.css";
+	color: var(--brand);
+	padding: var(--space-2);
+}
+
+.button:hover {
+	color: var(--brand-alias);
+}
+
+.primary-action {
+	background: var(--bg);
+
+	&:focus-visible {
+		outline: 2px solid var(--accent);
+	}
+
+	.icon {
+		width: 1rem;
+	}
+}
+
+@media (min-width: 40rem) {
+	.button {
+		padding: var(--space-1);
+	}
+}
+
+:global(.legacy) .button {
+	opacity: 0.5;
+}
+
+:global .theme-dark {
+	--brand: white;
+}
+
+@keyframes spin {
+	from {
+		transform: rotate(0deg);
+	}
+}

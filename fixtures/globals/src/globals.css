@@ -1,0 +1,5 @@
+@import "@/theme/vars.css";
+
+.btn {
+	cursor: pointer;
+}

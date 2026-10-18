@@ -1,0 +1,8 @@
+**
+!dist/*.js
+!package.json
+!README.md
+!LICENSE
+!CHANGELOG.md
+!icon.png
+!css-data.json

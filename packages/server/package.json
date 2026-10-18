@@ -1,0 +1,12 @@
+{
+	"name": "@css-modules-devtools/server",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"exports": "./src/server.ts",
+	"dependencies": {
+		"@css-modules-devtools/core": "workspace:*",
+		"vscode-languageserver": "9.0.1",
+		"vscode-languageserver-textdocument": "1.0.15"
+	}
+}

@@ -1,0 +1,7 @@
+.widget {
+	--brand: red;
+}
+
+.btn {
+	color: var(--brand);
+}

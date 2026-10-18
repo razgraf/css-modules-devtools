@@ -1,0 +1,12 @@
+node_modules
+dist
+.vscode-test
+*.vsix
+packages/client/LICENSE
+.DS_Store
+!fixtures/**/node_modules
+packages/client/README.md
+packages/client/icon.png
+packages/client/CHANGELOG.md
+!.vscode/launch.json
+!.vscode/tasks.json

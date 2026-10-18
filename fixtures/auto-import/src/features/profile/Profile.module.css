@@ -1,0 +1,7 @@
+.profile {
+	display: flex;
+}
+
+.profile-name {
+	font-weight: 600;
+}

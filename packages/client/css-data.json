@@ -1,0 +1,28 @@
+{
+	"version": 1.1,
+	"properties": [
+		{
+			"name": "composes",
+			"description": "CSS Modules: adds the listed classes to this one, from this file or another module (`composes: a b from \"./other.module.css\"`).",
+			"references": [
+				{ "name": "CSS Modules", "url": "https://github.com/css-modules/css-modules#composition" }
+			]
+		}
+	],
+	"pseudoClasses": [
+		{
+			"name": ":global",
+			"description": "CSS Modules: keeps the selector unscoped, as in `:global(.dark) .title`, or switches the rest of the selector to global.",
+			"references": [
+				{ "name": "CSS Modules", "url": "https://github.com/css-modules/css-modules#exceptions" }
+			]
+		},
+		{
+			"name": ":local",
+			"description": "CSS Modules: scopes the selector to this module. It's the default, so it only matters after `:global`.",
+			"references": [
+				{ "name": "CSS Modules", "url": "https://github.com/css-modules/css-modules#exceptions" }
+			]
+		}
+	]
+}

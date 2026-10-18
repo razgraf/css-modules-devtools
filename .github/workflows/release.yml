@@ -1,0 +1,140 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - name: Require main
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "Run the release from main, not $GITHUB_REF_NAME" >&2
+          exit 1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.3.13
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - run: bun install --frozen-lockfile
+      # The tag only exists once a release is published, so an existing tag means this version shipped.
+      - name: Read version
+        id: version
+        run: |
+          tag="v$(node -p "require('./packages/client/package.json').version")"
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" >/dev/null 2>&1; then
+            echo "$tag is already released; bump version in packages/client/package.json" >&2
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - run: bun run check
+      - run: bun run typecheck
+      - run: bun run test
+      - run: bun scripts/build.ts --production
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .vscode-test
+          key: vscode-test-${{ runner.os }}-1.85.0
+      - name: E2E (VS Code 1.85.0)
+        run: xvfb-run -a node scripts/e2e.mjs
+      - name: Package
+        working-directory: packages/client
+        run: ../../node_modules/.bin/vsce package --no-dependencies -o ../../dist/css-modules-devtools.vsix
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: vsix
+          path: dist/css-modules-devtools.vsix
+          if-no-files-found: error
+
+  # The draft (with the VSIX attached) exists before anything is published, so a failed publish never
+  # leaves a public GitHub release, and a re-run finds and reuses it. A draft doesn't create its tag;
+  # GitHub tags the target commit when the release is published.
+  draft:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ needs.build.outputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: vsix
+          path: dist
+      - name: Create draft GitHub release
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --target "$GITHUB_SHA"
+          else
+            gh release create "$TAG" --draft --target "$GITHUB_SHA" --generate-notes
+          fi
+          gh release upload "$TAG" dist/css-modules-devtools.vsix --clobber
+
+  publish:
+    needs: draft
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.3.13
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - run: bun install --frozen-lockfile
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: vsix
+          path: dist
+      # Signs in as the managed identity through GitHub's OIDC token; vsce picks the session up from the Azure CLI.
+      - uses: azure/login@053f7285eb20bf5469ef084617b0b24d3cec53fc # v3.1.0
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          allow-no-subscriptions: true
+      # --skip-duplicate makes re-running a partially failed release safe.
+      - name: Publish to Visual Studio Marketplace
+        run: node_modules/.bin/vsce publish --azure-credential --packagePath dist/css-modules-devtools.vsix --skip-duplicate
+      - name: Publish to Open VSX
+        run: node_modules/.bin/ovsx publish --packagePath dist/css-modules-devtools.vsix --skip-duplicate
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+
+  release:
+    needs: [build, publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Publish GitHub release
+        run: gh release edit "$TAG" --draft=false
+        env:
+          TAG: ${{ needs.build.outputs.tag }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}

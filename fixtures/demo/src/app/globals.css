@@ -1,0 +1,12 @@
+@import "./tokens.css";
+
+:root {
+	--bg: #0f1117;
+	--fg: #e6e9f2;
+	--ring: var(--accent);
+}
+
+body {
+	background: var(--bg);
+	color: var(--fg);
+}

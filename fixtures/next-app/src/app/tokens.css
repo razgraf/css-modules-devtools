@@ -1,0 +1,6 @@
+@import "./colors.css";
+
+:root {
+	--space-1: 4px;
+	--space-2: calc(var(--space-1) * 2);
+}

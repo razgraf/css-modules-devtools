@@ -1,0 +1,1 @@
+{ "name": "aliases", "private": true, "imports": { "#styles/*": "./src/styles/*" } }

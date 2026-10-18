@@ -1,0 +1,13 @@
+:root {
+	--brand: #7c5cff;
+	--brand-strong: #5b3df5;
+	--accent: #22d3ee;
+	--success: #10b981;
+	--warning: #f59e0b;
+	--danger: #f43f5e;
+	--surface: #1f2433;
+	--muted: #94a3b8;
+	--radius: 12px;
+	--space-2: 8px;
+	--space-4: 16px;
+}

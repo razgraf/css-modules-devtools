@@ -1,0 +1,12 @@
+.hero {
+	composes: surface from "@repo/ui/shared.module.css";
+	margin: var(--web-only);
+}
+
+:global(.shared-global) {
+	color: blue;
+}
+
+.title {
+	--web-only: 2px;
+}

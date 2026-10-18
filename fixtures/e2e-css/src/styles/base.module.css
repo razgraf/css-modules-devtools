@@ -1,0 +1,9 @@
+.reset {
+	margin: 0;
+	padding: 0;
+}
+
+.focusable {
+	composes: reset;
+	outline: none;
+}

@@ -1,0 +1,14 @@
+.card {
+	composes: elevated from "@/styles/base.module.css";
+	padding: var(--space-4);
+	border-radius: var(--radius);
+	background: var(--surface);
+}
+
+.title {
+	color: var(--brand);
+}
+
+.footer {
+	border-top: 1px solid var(--muted);
+}

@@ -1,0 +1,20 @@
+.online {
+	color: var(--success);
+	border-color: var(--success);
+}
+
+.away {
+	color: var(--warning);
+	border-color: var(--warning);
+}
+
+.offline {
+	color: var(--danger);
+	border-color: var(--danger);
+}
+
+.highlight {
+	background: var(--brand);
+	outline-color: var(--accent);
+	color: var(--fg);
+}

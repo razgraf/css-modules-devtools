@@ -1,0 +1,7 @@
+@import "@/theme.css";
+
+.card {
+	--card-pad: 4px;
+	color: var(--theme-red);
+	padding: var(--card-pad);
+}

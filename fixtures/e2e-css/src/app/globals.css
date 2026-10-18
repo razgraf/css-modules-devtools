@@ -1,0 +1,14 @@
+@import "./tokens.css";
+
+:root {
+	--bg: #ffffff;
+	--fg: var(--gray-900);
+}
+
+[data-theme="dark"] {
+	--bg: #000000;
+}
+
+.container {
+	max-width: 80rem;
+}

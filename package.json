@@ -1,0 +1,32 @@
+{
+	"name": "css-modules-devtools-monorepo",
+	"private": true,
+	"type": "module",
+	"workspaces": [
+		"packages/*"
+	],
+	"scripts": {
+		"build": "bun scripts/build.ts",
+		"check": "biome check .",
+		"fix": "biome check --write .",
+		"typecheck": "tsc -p tsconfig.json",
+		"test": "bun test packages",
+		"test:e2e": "bun run build && node scripts/e2e.mjs",
+		"demos": "bun run build && node scripts/demos/run.ts",
+		"package": "bun scripts/build.ts --production && cd packages/client && vsce package --no-dependencies -o ../../dist/css-modules-devtools.vsix",
+		"dev:setup": "bun run package && code --install-extension dist/css-modules-devtools.vsix --force && cursor --install-extension dist/css-modules-devtools.vsix --force",
+		"dev:clean": "code --uninstall-extension razgraf.css-modules-devtools; cursor --uninstall-extension razgraf.css-modules-devtools; rm -f dist/css-modules-devtools.vsix"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.15",
+		"@types/bun": "1.4.3",
+		"@types/node": "18.19.130",
+		"@types/vscode": "1.85.0",
+		"@vscode/test-electron": "3.1.0",
+		"@vscode/vsce": "4.0.0",
+		"esbuild": "0.28.2",
+		"ovsx": "1.3.0",
+		"playwright": "1.64.0",
+		"typescript": "7.0.2"
+	}
+}

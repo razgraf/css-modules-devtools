@@ -1,0 +1,14 @@
+.badge {
+	padding: 2px var(--space-2);
+	border-radius: 999px;
+}
+
+.success {
+	composes: badge;
+	background: var(--success);
+}
+
+.danger {
+	composes: badge;
+	background: var(--danger);
+}

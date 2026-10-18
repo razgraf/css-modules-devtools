@@ -1,0 +1,223 @@
+{
+	"name": "css-modules-devtools",
+	"displayName": "CSS Modules DevTools",
+	"description": "Completion, go-to-definition, hover, diagnostics and color swatches for CSS Modules and CSS variables.",
+	"version": "0.0.1",
+	"publisher": "razgraf",
+	"license": "MIT",
+	"icon": "icon.png",
+	"galleryBanner": {
+		"color": "#20222e",
+		"theme": "dark"
+	},
+	"preview": true,
+	"private": true,
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/razgraf/css-modules-devtools"
+	},
+	"homepage": "https://github.com/razgraf/css-modules-devtools#readme",
+	"bugs": {
+		"url": "https://github.com/razgraf/css-modules-devtools/issues"
+	},
+	"engines": {
+		"vscode": "^1.85.0"
+	},
+	"categories": [
+		"Programming Languages",
+		"Linters"
+	],
+	"keywords": [
+		"css modules",
+		"css variables",
+		"custom properties",
+		"composes",
+		"next.js",
+		"react"
+	],
+	"activationEvents": [
+		"onLanguage:css",
+		"onLanguage:typescriptreact",
+		"onLanguage:typescript",
+		"onLanguage:javascriptreact",
+		"onLanguage:javascript"
+	],
+	"main": "./dist/client.js",
+	"capabilities": {
+		"untrustedWorkspaces": {
+			"supported": "limited",
+			"description": "In untrusted workspaces, workspace values of `globalFiles`, `pathAlias` and `nodeModules.enabled` are ignored because they can point the language server at files outside the workspace.",
+			"restrictedConfigurations": [
+				"cssModulesDevTools.globalFiles",
+				"cssModulesDevTools.pathAlias",
+				"cssModulesDevTools.nodeModules.enabled"
+			]
+		},
+		"virtualWorkspaces": false
+	},
+	"contributes": {
+		"configuration": {
+			"title": "CSS Modules DevTools",
+			"properties": {
+				"cssModulesDevTools.tsx.enabled": {
+					"type": "string",
+					"enum": [
+						"auto",
+						"on",
+						"off"
+					],
+					"default": "auto",
+					"markdownDescription": "Class features in TS/JS files. `auto` turns them off when css-modules-kit's TS plugin is active (TypeScript < 7)."
+				},
+				"cssModulesDevTools.completion.enabled": {
+					"type": "boolean",
+					"default": true,
+					"description": "Class name completion in TS/JS files and in `composes`."
+				},
+				"cssModulesDevTools.definition.enabled": {
+					"type": "boolean",
+					"default": true,
+					"description": "Go to definition for classes, `composes` and `var()`."
+				},
+				"cssModulesDevTools.hover.enabled": {
+					"type": "boolean",
+					"default": true,
+					"description": "Hover preview of CSS rules and variables."
+				},
+				"cssModulesDevTools.hover.maxLines": {
+					"type": "number",
+					"default": 30,
+					"minimum": 1,
+					"description": "Maximum lines shown in a hover preview."
+				},
+				"cssModulesDevTools.autoImport.enabled": {
+					"type": "boolean",
+					"default": true,
+					"markdownDescription": "Suggest nearby CSS modules when typing an unimported binding listed in `#cssModulesDevTools.autoImport.identifiers#` (e.g. `styles.`). Path style follows `typescript.preferences.importModuleSpecifier`."
+				},
+				"cssModulesDevTools.autoImport.identifiers": {
+					"type": "array",
+					"items": {
+						"type": "string",
+						"pattern": "^[A-Za-z_$][\\w$]*$"
+					},
+					"uniqueItems": true,
+					"default": [
+						"styles",
+						"classes",
+						"css",
+						"s"
+					],
+					"markdownDescription": "Identifiers that trigger auto-import when typed unimported, e.g. `styles.`. Other unbound names (`expect.`, `Buffer.`) never do. An empty list turns auto-import off."
+				},
+				"cssModulesDevTools.variables.enabled": {
+					"type": "boolean",
+					"default": true,
+					"markdownDescription": "Completion, definition and hover for `var(--*)`."
+				},
+				"cssModulesDevTools.variables.tsxStrings": {
+					"type": "boolean",
+					"default": true,
+					"markdownDescription": "Complete `var(--*)` inside strings in TS/JS files."
+				},
+				"cssModulesDevTools.variables.colors": {
+					"type": "boolean",
+					"default": true,
+					"markdownDescription": "Show color swatches on `var(--*)` usages that resolve to a color."
+				},
+				"cssModulesDevTools.classNameConvention": {
+					"type": "string",
+					"enum": [
+						"asIs",
+						"camelCase",
+						"camelCaseOnly",
+						"dashes",
+						"dashesOnly"
+					],
+					"default": "asIs",
+					"markdownDescription": "How class names map to keys. Mirrors css-loader's `exportLocalsConvention`."
+				},
+				"cssModulesDevTools.pathAlias": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "string"
+					},
+					"default": {},
+					"markdownDescription": "Alias overrides checked before tsconfig `paths`, e.g. `{ \"@styles\": \"${workspaceFolder}/src/styles\" }`. Supports `${workspaceFolder}` and `${packageRoot}`. Falls back to `cssModules.pathAlias`."
+				},
+				"cssModulesDevTools.globalFiles": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"default": [],
+					"markdownDescription": "Globs (relative to each package root) of stylesheets whose variables and classes are global, e.g. `src/app/globals.css`. Their `@import`s are followed. Falls back to `cssVariables.lookupFiles` when that is set explicitly."
+				},
+				"cssModulesDevTools.varShadow.maxDepth": {
+					"type": "number",
+					"default": 0,
+					"minimum": -1,
+					"markdownDescription": "Flag redeclared global variables only in rules nested at most this deep (0 = top-level rules, -1 = any depth)."
+				},
+				"cssModulesDevTools.nodeModules.enabled": {
+					"type": "boolean",
+					"default": false,
+					"markdownDescription": "Follow `@import`s and `globalFiles` globs into `node_modules`."
+				},
+				"cssModulesDevTools.diagnostics": {
+					"type": "object",
+					"default": {
+						"missingClass": "error",
+						"missingFile": "error",
+						"varShadowsGlobal": "warning",
+						"globalClassCollision": "warning",
+						"localShadowsGlobal": "off"
+					},
+					"properties": {
+						"missingClass": {
+							"$ref": "#/definitions/severity"
+						},
+						"missingFile": {
+							"$ref": "#/definitions/severity"
+						},
+						"varShadowsGlobal": {
+							"$ref": "#/definitions/severity"
+						},
+						"globalClassCollision": {
+							"$ref": "#/definitions/severity"
+						},
+						"localShadowsGlobal": {
+							"$ref": "#/definitions/severity"
+						}
+					},
+					"additionalProperties": false,
+					"definitions": {
+						"severity": {
+							"type": "string",
+							"enum": [
+								"off",
+								"hint",
+								"info",
+								"warning",
+								"error"
+							]
+						}
+					},
+					"description": "Severity per diagnostic rule."
+				}
+			}
+		},
+		"css": {
+			"customData": [
+				"./css-data.json"
+			]
+		}
+	},
+	"dependencies": {
+		"vscode-languageclient": "9.0.1"
+	},
+	"devDependencies": {
+		"@css-modules-devtools/core": "workspace:*",
+		"@css-modules-devtools/server": "workspace:*"
+	}
+}

@@ -1,0 +1,4 @@
+.card {
+	composes: button from "./Button.module.css";
+	--bg: red;
+}
