@@ -41,11 +41,11 @@ Only global Azure DevOps Personal Access Tokens can publish to the Marketplace, 
 ### 4. GitHub environment
 
 1. **Settings → Environments → New environment** named `release`. Add yourself as a required reviewer. Under **Deployment branches and tags**, choose **Selected branches and tags** and add `main`.
-2. In that environment, add the **variables** `AZURE_CLIENT_ID` and `AZURE_TENANT_ID` (from step 2.4) and the **secret** `OVSX_PAT` (from step 3.3). Or from a terminal:
+2. In that environment, add the **secrets** `AZURE_CLIENT_ID` and `AZURE_TENANT_ID` (from step 2.4) and `OVSX_PAT` (from step 3.3). Or from a terminal:
 
    ```sh
-   gh variable set AZURE_CLIENT_ID --env release --body <client-id>
-   gh variable set AZURE_TENANT_ID --env release --body <tenant-id>
+   gh secret set AZURE_CLIENT_ID --env release
+   gh secret set AZURE_TENANT_ID --env release
    gh secret set OVSX_PAT --env release
    ```
 
@@ -67,8 +67,8 @@ The Marketplace knows the identity by its Azure DevOps profile ID, not its Clien
        steps:
          - uses: azure/login@053f7285eb20bf5469ef084617b0b24d3cec53fc # v3.1.0
            with:
-             client-id: ${{ vars.AZURE_CLIENT_ID }}
-             tenant-id: ${{ vars.AZURE_TENANT_ID }}
+             client-id: ${{ secrets.AZURE_CLIENT_ID }}
+             tenant-id: ${{ secrets.AZURE_TENANT_ID }}
              allow-no-subscriptions: true
          - run: az rest -u https://app.vssps.visualstudio.com/_apis/profile/profiles/me --resource 499b84ac-1321-427f-aa17-267ca6975798 --query id -o tsv
    ```

@@ -115,8 +115,8 @@ jobs:
       # Signs in as the managed identity through GitHub's OIDC token; vsce picks the session up from the Azure CLI.
       - uses: azure/login@053f7285eb20bf5469ef084617b0b24d3cec53fc # v3.1.0
         with:
-          client-id: ${{ vars.AZURE_CLIENT_ID }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           allow-no-subscriptions: true
       # --skip-duplicate makes re-running a partially failed release safe.
       - name: Publish to Visual Studio Marketplace
