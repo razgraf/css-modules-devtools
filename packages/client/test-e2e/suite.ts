@@ -255,7 +255,8 @@ test("`var(--` completion offers global variables with their source", async () =
 	});
 	const brand = items.find((item) => labelOf(item) === "--brand" && descriptionOf(item) === "colors.css");
 	assert.equal(brand?.kind, vscode.CompletionItemKind.Color);
-	const space = items.find((item) => labelOf(item) === "--space-1");
+	// The built-in CSS service also offers every referenced `--name` without a source, and provider merge order is racy.
+	const space = items.find((item) => labelOf(item) === "--space-1" && descriptionOf(item) !== undefined);
 	assert.equal(space && descriptionOf(space), "tokens.css");
 });
 
