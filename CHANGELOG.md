@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.3
+
+- Out of preview: VS Code and the Marketplace no longer show the Preview badge next to the extension.
+- Fixed the a warning in JSON configuration files caused by `diagnostics` and `$ref`
+
 ## 0.0.2
 
 - Cosmetic updates to the README.

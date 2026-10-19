@@ -2,7 +2,7 @@
 	"name": "css-modules-devtools",
 	"displayName": "CSS Modules DevTools",
 	"description": "Completion, go-to-definition, hover, diagnostics and color swatches for CSS Modules and CSS variables.",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"publisher": "razgraf",
 	"license": "MIT",
 	"icon": "icon.png",
@@ -10,7 +10,6 @@
 		"color": "#20222e",
 		"theme": "dark"
 	},
-	"preview": true,
 	"private": true,
 	"repository": {
 		"type": "git",
@@ -175,24 +174,46 @@
 					},
 					"properties": {
 						"missingClass": {
-							"$ref": "#/definitions/severity"
+							"type": "string",
+							"enum": [
+								"off",
+								"hint",
+								"info",
+								"warning",
+								"error"
+							]
 						},
 						"missingFile": {
-							"$ref": "#/definitions/severity"
+							"type": "string",
+							"enum": [
+								"off",
+								"hint",
+								"info",
+								"warning",
+								"error"
+							]
 						},
 						"varShadowsGlobal": {
-							"$ref": "#/definitions/severity"
+							"type": "string",
+							"enum": [
+								"off",
+								"hint",
+								"info",
+								"warning",
+								"error"
+							]
 						},
 						"globalClassCollision": {
-							"$ref": "#/definitions/severity"
+							"type": "string",
+							"enum": [
+								"off",
+								"hint",
+								"info",
+								"warning",
+								"error"
+							]
 						},
 						"localShadowsGlobal": {
-							"$ref": "#/definitions/severity"
-						}
-					},
-					"additionalProperties": false,
-					"definitions": {
-						"severity": {
 							"type": "string",
 							"enum": [
 								"off",
@@ -203,6 +224,7 @@
 							]
 						}
 					},
+					"additionalProperties": false,
 					"description": "Severity per diagnostic rule."
 				}
 			}

@@ -71,7 +71,7 @@ export function setting(id: string, value: unknown, info: Inspection | undefined
 const IDENT_RE = /^[A-Za-z_$][\w$]*$/;
 const TSX_MODES = ["auto", "on", "off"] as const;
 const CONVENTIONS: readonly Convention[] = ["asIs", "camelCase", "camelCaseOnly", "dashes", "dashesOnly"];
-const SEVERITIES: readonly Severity[] = ["off", "hint", "info", "warning", "error"];
+export const SEVERITIES: readonly Severity[] = ["off", "hint", "info", "warning", "error"];
 const SPECIFIERS: readonly ImportSpecifierPreference[] = [
 	"shortest",
 	"relative",

@@ -92,8 +92,6 @@ The Marketplace knows the identity by its Azure DevOps profile ID, not its Clien
 
 If a job fails, use **Re-run failed jobs**. A new run for the same version reuses the draft and points it at the new commit.
 
-Drop `"preview": true` from the manifest once the extension leaves preview.
-
 ## Credentials
 
 - **Marketplace:** nothing expires. If publishing fails with `operation not allowed`, check the identity is still a Contributor on the publisher. If `azure/login` fails, check the federated credential still names the `release` environment.

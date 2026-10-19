@@ -1,7 +1,8 @@
 import { expect, test } from "bun:test";
 import fs from "node:fs";
 import path from "node:path";
-import { RESTRICTED_FALLBACKS, SECTION, WATCHED_SECTIONS } from "../src/config";
+import { defaultSettings } from "@css-modules-devtools/core/types";
+import { RESTRICTED_FALLBACKS, SECTION, SEVERITIES, WATCHED_SECTIONS } from "../src/config";
 
 interface Manifest {
 	engines: Record<string, string>;
@@ -30,6 +31,21 @@ test("untrusted workspaces can't redirect resolution or globs", () => {
 	expect(manifest.capabilities?.virtualWorkspaces).toBe(false);
 });
 
+// VS Code merges every extension's settings into shared schemas, where `#` is the merged root.
+test("settings schemas don't use $ref or definitions", () => {
+	const json = JSON.stringify(manifest.contributes.configuration);
+	expect(json).not.toContain('"$ref"');
+	expect(json).not.toContain('"definitions"');
+
+	const diagnostics = manifest.contributes.configuration.properties[`${SECTION}.diagnostics`] as {
+		properties: Record<string, { type: string; enum: string[] }>;
+	};
+	expect(Object.keys(diagnostics.properties).sort()).toEqual(Object.keys(defaultSettings.diagnostics).sort());
+	for (const rule of Object.values(diagnostics.properties)) {
+		expect(rule).toEqual({ type: "string", enum: [...SEVERITIES] });
+	}
+});
+
 test("css custom data ships with the VSIX and declares composes", () => {
 	const files = manifest.contributes.css?.customData ?? [];
 	expect(files).toEqual(["./css-data.json"]);
@@ -43,7 +59,7 @@ test("css custom data ships with the VSIX and declares composes", () => {
 
 test("marketplace metadata", () => {
 	expect(Object.keys(manifest.engines)).toEqual(["vscode"]);
-	expect(manifest.preview).toBe(true);
+	expect(manifest.preview).toBeUndefined();
 	expect(manifest.homepage).toMatch(/^https:\/\//);
 	expect(manifest.galleryBanner).toEqual({ color: expect.stringMatching(/^#[0-9a-f]{6}$/i), theme: "dark" });
 });
