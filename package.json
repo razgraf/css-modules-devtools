@@ -13,6 +13,8 @@
 		"test": "bun test packages",
 		"test:e2e": "bun run build && node scripts/e2e.mjs",
 		"demos": "bun run build && node scripts/demos/run.ts",
+		"demos:grid": "bun run build && node scripts/demos/grid.ts",
+		"demos:banner": "node scripts/demos/banner.ts",
 		"package": "bun scripts/build.ts --production && cd packages/client && vsce package --no-dependencies -o ../../dist/css-modules-devtools.vsix",
 		"dev:setup": "bun run package && code --install-extension dist/css-modules-devtools.vsix --force && cursor --install-extension dist/css-modules-devtools.vsix --force",
 		"dev:clean": "code --uninstall-extension razgraf.css-modules-devtools; cursor --uninstall-extension razgraf.css-modules-devtools; rm -f dist/css-modules-devtools.vsix"

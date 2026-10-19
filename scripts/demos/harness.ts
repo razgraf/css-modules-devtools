@@ -1,31 +1,35 @@
 /// <reference lib="dom" />
 // DOM types cover the callbacks that run inside the VS Code window (page.evaluate).
 import { execFile } from "node:child_process";
-import { cp, mkdir, mkdtemp, realpath, rm, stat, writeFile } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readdir, realpath, rm, stat, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { downloadAndUnzipVSCode } from "@vscode/test-electron";
+import { downloadAndUnzipVSCode, resolveCliPathFromVSCodeExecutablePath } from "@vscode/test-electron";
 import { _electron, type CDPSession, type ElectronApplication, type Page } from "playwright";
 
 const run = promisify(execFile);
 
 export const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-export const gifDir = path.join(root, "docs/gifs");
+export const gifDir = path.join(root, "assets");
 
 const fixture = path.join(root, "fixtures/demo");
 const extension = path.join(root, "packages/client");
 const version = "1.85.0";
+const theme = { id: "t3dotgg.vsc-material-theme-but-i-wont-sue-you", version: "35.0.3" };
+const themeDir = path.join(root, ".vscode-test/demo-extensions");
 
-const size = { width: 1200, height: 700 };
+export type Size = { width: number; height: number };
+
+const defaultSize: Size = { width: 1200, height: 700 };
 const fps = 12;
 const typingDelay = 50;
 
 // Window-level chrome is hidden through settings; the native macOS title bar lives outside the
 // recorded web contents, so the video only ever contains the workbench.
 const settings = {
-	"workbench.colorTheme": "Default Dark Modern",
+	"workbench.colorTheme": "Material Theme Ocean High Contrast",
 	"editor.fontSize": 16,
 	"editor.lineHeight": 24,
 	"window.titleBarStyle": "native",
@@ -43,6 +47,10 @@ const settings = {
 	"workbench.enableExperiments": false,
 	"workbench.tree.renderIndentGuides": "none",
 	"editor.minimap.enabled": false,
+	"editor.scrollbar.vertical": "hidden",
+	"editor.scrollbar.horizontal": "hidden",
+	"editor.overviewRulerLanes": 0,
+	"editor.hideCursorInOverviewRuler": true,
 	"editor.stickyScroll.enabled": false,
 	"editor.cursorBlinking": "solid",
 	"editor.hover.delay": 250,
@@ -65,6 +73,7 @@ const settings = {
 const cursorId = "demo-cursor";
 const injectedStyle = `
 .part.editor .title .title-actions, .part.editor .title .editor-actions, .peekview-title .dirname, .notifications-toasts, .notification-toast-container { display: none !important; }
+.monaco-scrollable-element > .scrollbar, .monaco-scrollable-element > .shadow, .decorationsOverviewRuler { display: none !important; }
 #${cursorId} { position: fixed; left: 0; top: 0; width: 18px; height: 26px; z-index: 2147483646;
   pointer-events: none; display: none; transform: translate(-2px, -2px);
   background: url("data:image/svg+xml,${encodeURIComponent(
@@ -77,10 +86,12 @@ export type Point = { x: number; y: number };
 export class Demo {
 	readonly page: Page;
 	private readonly app: ElectronApplication;
+	private readonly size: Size;
 
-	constructor(app: ElectronApplication, page: Page) {
+	constructor(app: ElectronApplication, page: Page, size: Size) {
 		this.app = app;
 		this.page = page;
+		this.size = size;
 	}
 
 	wait(ms: number) {
@@ -181,7 +192,7 @@ export class Demo {
 
 	/** Moves the pointer out of the way (closing any hover) and hides it until the next move. */
 	async parkMouse() {
-		await this.moveTo({ x: size.width - 60, y: size.height - 60 }, 12);
+		await this.moveTo({ x: this.size.width - 60, y: this.size.height - 60 }, 12);
 		await this.page.evaluate((id) => {
 			const el = document.getElementById(id);
 			if (!el?.hasAttribute("data-armed")) return;
@@ -268,11 +279,11 @@ export class Demo {
 				break;
 			} catch (error) {
 				if (attempt === 4) throw error;
-				await this.page.mouse.move(size.width - 60, size.height - 60);
+				await this.page.mouse.move(this.size.width - 60, this.size.height - 60);
 				await this.press("Escape");
 			}
 		}
-		await this.page.mouse.move(size.width - 60, size.height - 60);
+		await this.page.mouse.move(this.size.width - 60, this.size.height - 60);
 		await this.press("Escape");
 		await this.wait(400);
 	}
@@ -308,7 +319,18 @@ export type Scene = {
 	play: (demo: Demo) => Promise<void>;
 };
 
-async function launch(scratch: string, scene: Scene) {
+/** Installs the color theme once into a cached extensions dir, reused by every scene. */
+async function installTheme(executablePath: string) {
+	const installed = await readdir(themeDir).catch((): string[] => []);
+	if (installed.includes(`${theme.id}-${theme.version}`)) return;
+	await run(resolveCliPathFromVSCodeExecutablePath(executablePath), [
+		`--extensions-dir=${themeDir}`,
+		"--install-extension",
+		`${theme.id}@${theme.version}`,
+	]);
+}
+
+async function launch(scratch: string, scene: Scene, size: Size) {
 	const workspace = path.join(scratch, "demo");
 	await cp(fixture, workspace, { recursive: true });
 	for (const [rel, content] of Object.entries(scene.files ?? {})) {
@@ -323,13 +345,14 @@ async function launch(scratch: string, scene: Scene) {
 		version,
 		cachePath: path.join(root, ".vscode-test"),
 	});
+	await installTheme(executablePath);
 	const app = await _electron.launch({
 		executablePath,
 		args: [
 			workspace,
 			`--extensionDevelopmentPath=${extension}`,
 			`--user-data-dir=${userData}`,
-			`--extensions-dir=${path.join(scratch, "x")}`,
+			`--extensions-dir=${themeDir}`,
 			"--skip-welcome",
 			"--skip-release-notes",
 			"--disable-workspace-trust",
@@ -387,9 +410,11 @@ class Recorder {
 	private end = 0;
 	private session?: CDPSession;
 	private readonly page: Page;
+	private readonly size: Size;
 
-	constructor(page: Page) {
+	constructor(page: Page, size: Size) {
 		this.page = page;
+		this.size = size;
 	}
 
 	async start() {
@@ -404,8 +429,8 @@ class Recorder {
 		});
 		await session.send("Page.startScreencast", {
 			format: "png",
-			maxWidth: size.width,
-			maxHeight: size.height,
+			maxWidth: this.size.width,
+			maxHeight: this.size.height,
 		});
 	}
 
@@ -435,7 +460,7 @@ class Recorder {
 	}
 }
 
-async function toGif(list: string, duration: number, out: string) {
+async function toGif(list: string, duration: number, out: string, size: Size) {
 	const filter = [
 		`[0:v]fps=${fps},scale=${size.width}:${size.height}:flags=lanczos,split[a][b]`,
 		"[a]palettegen=max_colors=128:stats_mode=full[p]",
@@ -462,13 +487,13 @@ async function toGif(list: string, duration: number, out: string) {
 	]);
 }
 
-export async function record(name: string, scene: Scene) {
+export async function record(name: string, scene: Scene, { size = defaultSize, dir = gifDir } = {}) {
 	// realpath: /var → /private/var on macOS; VS Code otherwise shows absolute paths in labels.
 	const scratch = await realpath(await mkdtemp(path.join(os.tmpdir(), "cmd-demo-")));
 	try {
-		const { app, page } = await launch(scratch, scene);
-		const demo = new Demo(app, page);
-		const recorder = new Recorder(page);
+		const { app, page } = await launch(scratch, scene, size);
+		const demo = new Demo(app, page, size);
+		const recorder = new Recorder(page, size);
 		try {
 			await prepareLayout(demo);
 			await demo.open(scene.open);
@@ -490,9 +515,9 @@ export async function record(name: string, scene: Scene) {
 		const { list, duration } = await recorder.write(path.join(scratch, "frames"));
 		if (process.env.DEMO_DEBUG_FRAMES)
 			await cp(path.join(scratch, "frames"), process.env.DEMO_DEBUG_FRAMES, { recursive: true });
-		await mkdir(gifDir, { recursive: true });
-		const out = path.join(gifDir, `${name}.gif`);
-		await toGif(list, duration, out);
+		await mkdir(dir, { recursive: true });
+		const out = path.join(dir, `${name}.gif`);
+		await toGif(list, duration, out, size);
 		const { size: bytes } = await stat(out);
 		return { out, bytes, duration };
 	} finally {

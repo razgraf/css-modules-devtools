@@ -2,9 +2,11 @@
 
 # CSS Modules DevTools
 
-Class name completion, go to definition, hover previews and diagnostics for CSS Modules, plus `var(--*)` completion and color swatches. Works in VS Code and Cursor, with TypeScript 5, 6 and 7.
+An improved developer experience for CSS in your IDE. Class name completion, go to definition and hover previews, plus `var(--*)` and `composes` completion and color swatches. Works in VS Code and Cursor, with TypeScript 5, 6 and 7.
 
-Inspired by features from [existing extensions](#special-thanks), brought up to date, tested and aggregated under one roof.
+Inspired by the best parts of [existing extensions](#special-thanks), updated for today's toolchains and combined into one.
+
+![CSS Modules DevTools in action](assets/vscode-css-modules-devtools-overview.gif)
 
 ## Features
 
@@ -12,59 +14,61 @@ Inspired by features from [existing extensions](#special-thanks), brought up to 
 
 Type `styles.` and pick a class from the imported module. Kebab-case classes insert as `styles['primary-action']`. Works with any import name, `import * as`, named imports, `require()`, and inside template literals.
 
-![Class completion](docs/gifs/completion.gif)
+![Class completion](assets/completion.gif)
 
 ### Hover preview
 
 Hovering a class shows all its rules in source order, with their `@media` and `@supports` wrappers. Below a `/* ---- composed ---- */` line come the rules of every class it composes, including chained ones, as written in their files. The source files are linked under the preview.
 
-![Hover preview](docs/gifs/hover.gif)
+![Hover preview](assets/hover.gif)
 
 ### Go to definition
 
 F12 or Cmd+click on `styles.button` lists every selector that contains `.button`, including `:hover` variants and rules inside `@media`.
 
-![Go to definition](docs/gifs/definition.gif)
+![Go to definition](assets/definition.gif)
 
 ### Missing class and missing file checks
 
 `styles.buton` gets an error when the module has no such class. The quick fix offers the closest names ("Did you mean 'button'?") or adds an empty `.buton {}` rule to the module. Imports, `composes … from` and `@import` paths that don't resolve get flagged too. TypeScript can't catch those, because the `declare module '*.module.css'` that Next.js and Vite ship accepts any path.
 
-![Missing class](docs/gifs/missing-class.gif)
+![Missing class](assets/missing-class.gif)
 
 ### Auto-import
 
 Type `styles.` in a file that doesn't import a stylesheet yet. The extension suggests classes from nearby modules, starting with the same-name sibling (`Button.tsx` gets `Button.module.css` first), and adds the import when you accept. The path follows your `typescript.preferences.importModuleSpecifier` setting, so aliases like `@/styles/base.module.css` work. Only the names in `autoImport.identifiers` trigger this, so `expect.` or `Buffer.` never do.
 
-![Auto-import](docs/gifs/auto-import.gif)
+![Auto-import](assets/auto-import.gif)
 
-### `composes`
+### Acknowledged `composes`
 
 Completion, go to definition and hover for `composes: a b from "./other.module.css"`. That covers local classes, other files, aliased paths, packages and `from global`.
 
 VS Code's built-in CSS checker no longer flags `composes` as an unknown property, so you can drop it from your own `css.customData` file. `:global` and `:local` get completion and hover docs too. VS Code applies this data to every CSS file, so plain `.css` files accept `composes` as well.
 
-![composes](docs/gifs/composes.gif)
+![composes](assets/composes.gif)
 
 ### CSS variables
 
 `var(--` completes custom properties from the current file, everything it `@import`s (recursively, cycles included), and the files you list in `globalFiles`. Completion also works in strings in TS/JS files, such as `style={{ color: "var(--brand)" }}`. Hover and go to definition show where a variable is declared and what it resolves to.
 
-![CSS variables](docs/gifs/variables.gif)
+![CSS variables](assets/variables.gif)
 
 ### Color swatches
 
 Every `var(--x)` that resolves to a color gets a swatch, following nested variables and fallbacks. Hex, rgb, hsl, hwb, lab, lch, oklab, oklch and named colors all work. The swatch is read-only. To change the color, edit the declaration.
 
-![Color swatches](docs/gifs/colors.gif)
+![Color swatches](assets/colors.gif)
 
 ### Global collision checks
 
 CSS Modules don't scope custom properties. If a module redeclares `--brand` at the top level while `globals.css` already declares it, you get a warning that links to the original. `:global(.x)` classes that clash with your global stylesheets or with another module's `:global` get a warning too. Theme overrides inside your global files, such as `[data-theme="dark"]`, are exempt.
 
-![Global shadow warning](docs/gifs/global-shadow.gif)
+![Global shadow warning](assets/global-shadow.gif)
 
 ## Getting started
+
+### Basics
 
 1. Install **CSS Modules DevTools** from the VS Code Marketplace, or from Open VSX in Cursor.
 2. Open a project that imports `*.module.css` files. Nothing else is required for class features.
@@ -79,38 +83,37 @@ CSS Modules don't scope custom properties. If a module redeclares `--brand` at t
    // The import aliases are optional but provide autocomplete if you have aliased paths (this is VSCode's native finder)
    ```
 
-   Patterns are relative to each package root, so in a monorepo every app picks up its own `src/app/globals.css`. Start a pattern with `${workspaceFolder}/` to point at one file for the whole workspace. Package roots stop at the workspace folder, and globs don't follow symlinks.
+### Advanced
 
-   In Restricted Mode, workspace values of `globalFiles`, `pathAlias` and `nodeModules.enabled` (and of the `cssModules.pathAlias` and `cssVariables.lookupFiles` settings read from other extensions) are ignored. Trust the folder to use them.
-
-4. If your bundler converts class names (css-loader's `exportLocalsConvention`), set `classNameConvention` to match. Otherwise `styles.fooBar` is reported as missing.
-
-Path aliases come from the nearest `tsconfig.json` or `jsconfig.json` for each file. `extends`, project references, `paths` with or without `baseUrl` (inherited `paths` resolve from the config that declares them, as in TypeScript), and `package.json` `imports` (`#styles/*`) all work. For aliases that only exist in your bundler config, use `pathAlias`.
-
-Root-absolute paths such as `@import "/styles/tokens.css"` resolve from the package root, then from the workspace folder, the way Vite does. css-loader's `~` prefix (`@import "~pkg/theme.css"`) resolves from `node_modules` when no alias claims `~`.
+1. `globalFiles` patterns are relative to each package root, so in a monorepo every app picks up its own `src/app/globals.css`. Start a pattern with `${workspaceFolder}/` to point at one file for the whole workspace. Package roots stop at the workspace folder, and globs don't follow symlinks.
+2. If your bundler converts class names (css-loader's `exportLocalsConvention`), set `classNameConvention` to match. Otherwise `styles.fooBar` is reported as missing.
+3. Path aliases come from the nearest `tsconfig.json` or `jsconfig.json` for each file. `extends`, project references, `paths` with or without `baseUrl` (inherited `paths` resolve from the config that declares them, as in TypeScript), and `package.json` `imports` (`#styles/*`) all work. For aliases that only exist in your bundler config, use `pathAlias`.
+4. Root-absolute paths such as `@import "/styles/tokens.css"` resolve from the package root, then from the workspace folder, the way Vite does. css-loader's `~` prefix (`@import "~pkg/theme.css"`) resolves from `node_modules` when no alias claims `~`.
+5. In Restricted Mode, workspace values of `globalFiles`, `pathAlias` and `nodeModules.enabled` (and of the `cssModules.pathAlias` and `cssVariables.lookupFiles` settings read from other extensions) are ignored. Trust the folder to use them.
+6. Every feature can be switched off or tuned in [Settings](#settings). A few extras are off by default: `nodeModules.enabled` follows `@import`s into `node_modules`, and the `localShadowsGlobal` diagnostic flags a local class that reuses a global class name.
 
 ## Settings
 
-All settings live under `cssModulesDevTools`.
+All settings live under the `cssModulesDevTools` object/prefix.
 
-| Setting                  | Default                             | What it does                                                                                                                                        |
-| ------------------------ | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tsx.enabled`            | `"auto"`                            | Class features in TS/JS files. `auto` hands them to css-modules-kit when its TS plugin is active on TypeScript < 7.                                 |
-| `completion.enabled`     | `true`                              | Class completion in TS/JS and in `composes`.                                                                                                        |
-| `definition.enabled`     | `true`                              | Go to definition for classes, `composes` and `var()`.                                                                                               |
-| `hover.enabled`          | `true`                              | Hover previews for classes and variables.                                                                                                           |
-| `hover.maxLines`         | `30`                                | Longest hover preview before it's cut off.                                                                                                          |
-| `autoImport.enabled`     | `true`                              | Suggest nearby modules for an unimported `styles.`.                                                                                                 |
-| `autoImport.identifiers` | `["styles", "classes", "css", "s"]` | Names that trigger auto-import. An empty list turns it off.                                                                                         |
-| `variables.enabled`      | `true`                              | Completion, definition and hover for `var(--*)`.                                                                                                    |
-| `variables.tsxStrings`   | `true`                              | `var(--*)` completion inside strings in TS/JS files.                                                                                                |
-| `variables.colors`       | `true`                              | Color swatches on `var(--*)` usages.                                                                                                                |
-| `classNameConvention`    | `"asIs"`                            | `asIs`, `camelCase`, `camelCaseOnly`, `dashes` or `dashesOnly`. Same output as css-loader 7.                                                        |
-| `pathAlias`              | `{}`                                | Alias overrides checked before tsconfig, e.g. `{ "@styles": "${workspaceFolder}/src/styles" }`. Supports `${workspaceFolder}` and `${packageRoot}`. |
-| `globalFiles`            | `[]`                                | Globs for global stylesheets. Their `@import`s are followed.                                                                                        |
-| `varShadow.maxDepth`     | `0`                                 | How deeply nested a redeclared global variable can be and still get flagged. `0` means top-level rules only, `-1` means any depth.                  |
-| `nodeModules.enabled`    | `false`                             | Follow `@import`s and `globalFiles` globs into `node_modules`. Resolving a single `composes … from "pkg/x.module.css"` works without it.            |
-| `diagnostics`            | see below                           | Severity per rule: `off`, `hint`, `info`, `warning` or `error`.                                                                                     |
+| Setting                  | Default                             | What it does                                                                                                                                                                                                                                            |
+| ------------------------ | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `globalFiles`            | `[]`                                | Share your global stylesheet's variables with every module. `["src/app/globals.css"]` gives `var(--brand)` completion in `Button.module.css` without an `@import`. Their `@import`s are followed.                                                       |
+| `pathAlias`              | `{}`                                | Resolve aliases that only exist in your bundler config. `{ "@styles": "${workspaceFolder}/src/styles" }` makes `@import "@styles/tokens.css"` resolve. Checked before tsconfig, supports `${workspaceFolder}` and `${packageRoot}`.                     |
+| `classNameConvention`    | `"asIs"`                            | Match css-loader's `exportLocalsConvention`. With `camelCase`, `.primary-action` is offered as `styles.primaryAction` and `styles['primary-action']`. `camelCaseOnly` keeps just `styles.primaryAction`. `dashes` and `dashesOnly` convert dashes only. |
+| `diagnostics`            | see below                           | Severity per check: `off`, `hint`, `info`, `warning` or `error`. For example, `"missingClass": "warning"` while migrating a codebase.                                                                                                                   |
+| `autoImport.identifiers` | `["styles", "classes", "css", "s"]` | Names that trigger auto-import when typed without an import. Add yours, such as `"cls"` for `cls.`, or set `[]` to turn auto-import off.                                                                                                                |
+| `variables.colors`       | `true`                              | Color swatches next to `var(--brand)` when it resolves to a color. Turn off if another extension already draws them.                                                                                                                                    |
+| `hover.maxLines`         | `30`                                | Longest hover preview before it's cut off. Raise it for classes that compose a lot.                                                                                                                                                                     |
+| `tsx.enabled`            | `"auto"`                            | Class features in TS/JS files: `on`, `off` or `auto`. `auto` hands them to css-modules-kit when its TS plugin is active on TypeScript < 7.                                                                                                              |
+| `autoImport.enabled`     | `true`                              | Suggest nearby modules when you type `styles.` in a file that doesn't import one yet.                                                                                                                                                                   |
+| `variables.tsxStrings`   | `true`                              | `var(--*)` completion inside TS/JS strings, as in `style={{ color: "var(--brand)" }}`.                                                                                                                                                                  |
+| `nodeModules.enabled`    | `false`                             | Follow `@import`s and `globalFiles` globs into `node_modules`, e.g. when `globals.css` has `@import "open-props/style.css"`. A single `composes … from "pkg/x.module.css"` works without it.                                                            |
+| `varShadow.maxDepth`     | `0`                                 | How deeply nested a redeclared global variable can be and still get flagged. `0` catches `.card { --brand: red }`, also inside `@media`. `1` adds `.card { &:hover { --brand: red } }`. `-1` means any depth.                                           |
+| `completion.enabled`     | `true`                              | Class completion in TS/JS and in `composes`.                                                                                                                                                                                                            |
+| `definition.enabled`     | `true`                              | Go to definition for classes, `composes` and `var()`.                                                                                                                                                                                                   |
+| `hover.enabled`          | `true`                              | Hover previews for classes and variables.                                                                                                                                                                                                               |
+| `variables.enabled`      | `true`                              | Completion, definition and hover for `var(--*)`.                                                                                                                                                                                                        |
 
 ```jsonc
 "cssModulesDevTools.diagnostics": {
@@ -126,11 +129,11 @@ All settings live under `cssModulesDevTools`.
 
 If you're switching from another extension, a few of its settings carry over while ours are unset.
 
-| Their setting                                                                                                                            | Used as                |
-| ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
-| `cssModules.pathAlias` ([clinyong/vscode-css-modules](https://github.com/clinyong/vscode-css-modules))                                   | `pathAlias`            |
-| `cssVariables.lookupFiles` ([vscode-css-variables](https://github.com/vunguyentuan/vscode-css-variables)), only when you set it yourself | `globalFiles`          |
-| `typescript.preferences.importModuleSpecifier` (built in)                                                                                | auto-import path style |
+| Their setting                                                                                                                                         | Used as                |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| `cssModules.pathAlias` ([clinyong/vscode-css-modules](https://github.com/clinyong/vscode-css-modules))                                                | `pathAlias`            |
+| `cssVariables.lookupFiles` ([vunguyentuan/vscode-css-variables](https://github.com/vunguyentuan/vscode-css-variables)), only when you set it yourself | `globalFiles`          |
+| `typescript.preferences.importModuleSpecifier` (built in)                                                                                             | auto-import path style |
 
 Running this extension next to either of those two shows duplicate suggestions, so you get a one-time prompt to disable them.
 
@@ -169,8 +172,6 @@ Note: This extension runs as its own language server and never loads TypeScript,
 | Color swatches                  | Yes            | No                                                           | No                                                                                        | No                                                                   | Yes                                                                          |
 | SCSS and Less                   | No             | No                                                           | Yes                                                                                       | Yes                                                                  | Yes                                                                          |
 
-Empty cells are ones I couldn't confirm from the project's docs or issues.
-
 ## Special thanks
 
 Most of these features already existed, spread across a handful of popular extensions. This one brings them together under a single roof, and it owes a lot to the people who built them first.
@@ -183,6 +184,8 @@ Most of these features already existed, spread across a handful of popular exten
 - Inlining `composes` declarations into the hover, `composes` completion, the global namespace checks, per-package `globalFiles` and working the same on every TypeScript version are new here.
 
 The extension icon is built with [Lucide](https://lucide.dev) icons, licensed under ISC.
+
+The extension was built using AI agents.
 
 ## License
 
