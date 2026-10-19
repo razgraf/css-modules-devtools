@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.2
+
+- Cosmetic updates to the README.
+
 ## 0.0.1
 
 Initial preview release.
