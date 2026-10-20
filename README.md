@@ -77,10 +77,10 @@ CSS Modules don't scope custom properties. If a module redeclares `--brand` at t
    ```jsonc
    // .vscode/settings.json
    {
-     "css.importAliases": { "@/": "/src/" },
+     "files.associations": { "*.css": "css" }, // Optional, but provides built-in css features (see conflicting extensions below)
+     "css.importAliases": { "@/": "/src/" }, // Optional but provide autocomplete for aliased paths
      "cssModulesDevTools.globalFiles": ["src/app/globals.css"],
    }
-   // The import aliases are optional but provide autocomplete if you have aliased paths (this is VSCode's native finder)
    ```
 
 ### Advanced
@@ -91,6 +91,28 @@ CSS Modules don't scope custom properties. If a module redeclares `--brand` at t
 4. Root-absolute paths such as `@import "/styles/tokens.css"` resolve from the package root, then from the workspace folder, the way Vite does. css-loader's `~` prefix (`@import "~pkg/theme.css"`) resolves from `node_modules` when no alias claims `~`.
 5. In Restricted Mode, workspace values of `globalFiles`, `pathAlias` and `nodeModules.enabled` (and of the `cssModules.pathAlias` and `cssVariables.lookupFiles` settings read from other extensions) are ignored. Trust the folder to use them.
 6. Every feature can be switched off or tuned in [Settings](#settings). A few extras are off by default: `nodeModules.enabled` follows `@import`s into `node_modules`, and the `localShadowsGlobal` diagnostic flags a local class that reuses a global class name.
+
+#### Disable potentially conflicting extensions
+
+🚧 **Disable these.** They duplicate features of this extension.
+
+- **[vscode-css-modules](https://github.com/clinyong/vscode-css-modules)** duplicates class completion and go to definition. Its `cssModules.pathAlias` keeps working.
+- **[vscode-css-variables](https://github.com/vunguyentuan/vscode-css-variables)** duplicates `var()` completion and color swatches. Its `cssVariables.lookupFiles` keeps working when you set it yourself.
+- **[typescript-plugin-css-modules](https://github.com/mrmckeb/typescript-plugin-css-modules)** also completes classes in TS/JS, so each class shows up twice. Remove it from your tsconfig `plugins`.
+
+✅ **Keep or disable these.** They work alongside this extension.
+
+- **[css-modules-kit](https://github.com/mizdra/css-modules-kit)**: on TypeScript < 7 this extension hands it the TS/JS side (`tsx.enabled: "auto"`).
+- **[PostCSS Language Support](https://github.com/csstools/postcss-language)** (`csstools.postcss`) opens `.css` files in its own `postcss` language mode, and this extension works in either mode. VS Code's built-in CSS features (its own completions, lint and color picker) only run in `css` mode, so map the files back if you miss them:
+
+  ```jsonc
+  // .vscode/settings.json
+  "files.associations": { "*.css": "css" }
+  ```
+
+  You can check a file's language mode in the status bar.
+
+- **Other color extensions** that draw swatches for `var()` show a second swatch. Set `variables.colors` to `false` to keep only theirs.
 
 ## Settings
 
@@ -135,7 +157,7 @@ If you're switching from another extension, a few of its settings carry over whi
 | `cssVariables.lookupFiles` ([vunguyentuan/vscode-css-variables](https://github.com/vunguyentuan/vscode-css-variables)), only when you set it yourself | `globalFiles`          |
 | `typescript.preferences.importModuleSpecifier` (built in)                                                                                             | auto-import path style |
 
-Running this extension next to either of those two shows duplicate suggestions, so you get a one-time prompt to disable them.
+Running this extension next to either of those two shows duplicate suggestions, so you get a one-time prompt to disable them. See [Disable potentially conflicting extensions](#disable-potentially-conflicting-extensions).
 
 ## Works well with
 

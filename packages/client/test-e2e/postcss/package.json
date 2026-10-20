@@ -1,0 +1,22 @@
+{
+	"name": "postcss-language-stub",
+	"publisher": "test",
+	"version": "0.0.0",
+	"private": true,
+	"engines": {
+		"vscode": "^1.85.0"
+	},
+	"contributes": {
+		"languages": [
+			{
+				"id": "postcss",
+				"aliases": [
+					"PostCSS"
+				],
+				"extensions": [
+					".pcss"
+				]
+			}
+		]
+	}
+}

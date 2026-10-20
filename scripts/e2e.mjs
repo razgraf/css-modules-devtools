@@ -7,6 +7,9 @@ import { runTests } from "@vscode/test-electron";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const extensionDevelopmentPath = path.join(root, "packages/client");
 const extensionTestsPath = path.join(extensionDevelopmentPath, "test-e2e/dist/suite.js");
+// Registers the `postcss` language the way PostCSS Language Support (csstools.postcss) does, minus `.css`,
+// so the suite runs in `css` mode and switches single documents to `postcss`.
+const postcssStub = path.join(extensionDevelopmentPath, "test-e2e/postcss");
 const fixture = path.join(root, "fixtures/e2e-css");
 // Oldest supported release (engines.vscode); override with VSCODE_VERSION=stable.
 const version = process.env.VSCODE_VERSION ?? "1.85.0";
@@ -22,7 +25,7 @@ try {
 		console.log(`\ne2e workspace: ${workspace}`);
 		await runTests({
 			version,
-			extensionDevelopmentPath,
+			extensionDevelopmentPath: [extensionDevelopmentPath, postcssStub],
 			extensionTestsPath,
 			launchArgs: [
 				workspace,

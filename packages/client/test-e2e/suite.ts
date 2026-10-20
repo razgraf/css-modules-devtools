@@ -260,6 +260,24 @@ test("`var(--` completion offers global variables with their source", async () =
 	assert.equal(space && descriptionOf(space), "tokens.css");
 });
 
+test("`.css` files in PostCSS Language Support's `postcss` mode get completion", async () => {
+	const css = await vscode.languages.setTextDocumentLanguage(
+		await show("src/components/Button.module.css"),
+		"postcss",
+	);
+	try {
+		const position = positionIn(css, "var(--space-2)", "var(--".length);
+		await poll(async () => {
+			const { items } = await completionsAt(css.uri, position, "-");
+			return items.some((item) => labelOf(item) === "--brand" && descriptionOf(item) === "colors.css")
+				? true
+				: undefined;
+		});
+	} finally {
+		await vscode.languages.setTextDocumentLanguage(css, "css");
+	}
+});
+
 test("`var()` references get color swatches", async () => {
 	const css = await show("src/components/Button.module.css");
 	const swatchAt = async (needle: string) => {

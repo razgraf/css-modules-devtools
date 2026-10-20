@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.4
+
+- Works with PostCSS Language Support, which opens `.css` files in its own `postcss` language mode. Those files used to get no completion, hover, swatches or diagnostics, and with only a stylesheet open the extension didn't activate at all.
+- README: new "Disable potentially conflicting extensions" section under Getting started → Advanced.
+
 ## 0.0.3
 
 - Out of preview: VS Code and the Marketplace no longer show the Preview badge next to the extension.

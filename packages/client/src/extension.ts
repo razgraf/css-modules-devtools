@@ -30,7 +30,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 		vscode.workspace.createFileSystemWatcher("**/*", false, true, false),
 	];
 	const clientOptions: LanguageClientOptions = {
-		documentSelector: LANGUAGES.map((language) => ({ scheme: "file", language })),
+		documentSelector: [
+			...LANGUAGES.map((language) => ({ scheme: "file", language })),
+			// PostCSS Language Support (csstools.postcss) claims `.css` for its `postcss` language.
+			{ scheme: "file", language: "postcss", pattern: "**/*.css" },
+		],
 		synchronize: { fileEvents: watchers },
 		initializationOptions: configuration(),
 	};

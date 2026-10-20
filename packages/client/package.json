@@ -2,7 +2,7 @@
 	"name": "css-modules-devtools",
 	"displayName": "CSS Modules DevTools",
 	"description": "Completion, go-to-definition, hover, diagnostics and color swatches for CSS Modules and CSS variables.",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"publisher": "razgraf",
 	"license": "MIT",
 	"icon": "icon.png",
@@ -36,6 +36,7 @@
 	],
 	"activationEvents": [
 		"onLanguage:css",
+		"onLanguage:postcss",
 		"onLanguage:typescriptreact",
 		"onLanguage:typescript",
 		"onLanguage:javascriptreact",
