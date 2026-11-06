@@ -28,7 +28,7 @@
 		"@vscode/vsce": "4.0.0",
 		"esbuild": "0.28.2",
 		"ovsx": "1.3.0",
-		"playwright": "1.64.0",
+		"playwright": "^1.65.0",
 		"typescript": "7.0.2"
 	}
 }
